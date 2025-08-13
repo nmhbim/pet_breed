@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { breedName, animalType, apiKey } = await request.json();
+    const { breedName, animalType, apiKey, customColorsPrompt } = await request.json();
 
     if (!breedName) {
       return NextResponse.json({ error: 'Breed name is required' }, { status: 400 });
@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     });
 
-    const prompt = `What are the common coat colors and patterns for ${animalType} ${breedName}? Please provide a list of specific color names in English, separated by commas. Only return the color names, nothing else. For example: "Golden, Cream, White, Black, Brown"`;
+    const prompt = customColorsPrompt 
+      ? customColorsPrompt.replace(/{animalType}/g, animalType).replace(/{breedName}/g, breedName)
+      : `What are the realistic natural coat colors and patterns for ${animalType} ${breedName}? Provide actual fur colors that exist in nature, not fantasy colors. Return only color names separated by commas. Example: 'Black and White, Brown, Sable, Gray'`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",

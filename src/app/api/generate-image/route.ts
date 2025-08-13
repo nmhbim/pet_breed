@@ -3,7 +3,7 @@ import OpenAI, { toFile } from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { referenceImageData, breedName, animalType, color, apiKey, customPrompt } = await request.json();
+    const { referenceImageData, breedName, animalType, color, apiKey, customPrompt, isMasterGeneration } = await request.json();
 
     if (!referenceImageData || !breedName || !animalType || !color || !apiKey) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
@@ -13,12 +13,24 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     });
 
-    // Use custom prompt if provided, otherwise use default
-    const defaultPrompt = `Create an image of a ${breedName} ${animalType} with ${color} fur. The new image must match the exact same artistic style, cartoon design, pose, proportions, and visual characteristics as the reference image. Only change the fur color to ${color}, keeping everything else identical including the drawing style, line work, shading, and overall appearance. The image must have a completely transparent background, no background elements at all, just the ${animalType} with the same style as the reference. Make sure the background is 100% transparent.`;
+    // Use different prompts for master generation vs color variants
+    let prompt;
     
-    const prompt = customPrompt 
-      ? customPrompt.replace(/{animalType}/g, animalType).replace(/{breedName}/g, breedName).replace(/{color}/g, color)
-      : defaultPrompt;
+    if (isMasterGeneration) {
+      // Master generation: Use custom master prompt
+      const defaultMasterPrompt = `Create an image of a ${animalType} ${breedName} with ${color} fur. Use the reference image for artistic style, pose, and composition, but make sure the animal is an accurate representation of a ${breedName} breed with proper ${breedName} characteristics (face shape, ear shape, body proportions, etc.). The image should match the same cartoon style, pose, and artistic approach as the reference, but the animal must look like a genuine ${breedName}. Transparent background, no background elements.`;
+      
+      prompt = customPrompt 
+        ? customPrompt.replace(/{animalType}/g, animalType).replace(/{breedName}/g, breedName).replace(/{color}/g, color)
+        : defaultMasterPrompt;
+    } else {
+      // Color variant generation: Use custom variants prompt
+      const defaultVariantsPrompt = `Change only the fur color of this ${animalType} ${breedName} to ${color}. Keep everything else EXACTLY the same: same pose, same facial expression, same body position, same artistic style, same proportions. Only the fur color should change from the current color to ${color}. Maintain transparent background.`;
+      
+      prompt = customPrompt 
+        ? customPrompt.replace(/{animalType}/g, animalType).replace(/{breedName}/g, breedName).replace(/{color}/g, color)
+        : defaultVariantsPrompt;
+    }
 
     // Convert base64 to Buffer and create a File using toFile
     const base64Data = referenceImageData.replace(/^data:image\/[a-z]+;base64,/, '');
