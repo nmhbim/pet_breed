@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐕 Dog Color Variant Generator
 
-## Getting Started
+A Next.js application that generates color variants of dog breed images using AI.
 
-First, run the development server:
+## Features
+
+- 📁 Upload folders containing dog breed images
+- 🤖 AI-powered color detection using ChatGPT
+- 🎨 OpenAI GPT-Image-1 generation for color variants
+- 📱 Modern, responsive UI
+- ⚡ Real-time processing status
+- 🔄 Individual color processing with progress tracking
+
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Create environment file:**
+   Create a `.env.local` file in the root directory and add your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## How to Use
+
+1. **Prepare your folder structure:**
+   ```
+   B/
+   ├── golden_retriever/
+   │   └── golden_retriever.png
+   ├── german_shepherd/
+   │   └── german_shepherd.png
+   └── husky/
+       └── husky.png
+   ```
+
+2. **Enter your OpenAI API key** in the application
+
+3. **Upload your folder** using the file picker
+
+4. **Wait for processing** - the AI will:
+   - Detect dog breeds from folder names
+   - Query ChatGPT for common colors of each breed
+   - Generate color variants using OpenAI GPT-Image-1 for each color
+
+5. **Download the results** - generated images will be saved with the format:
+   ```
+   breedname_color.png
+   ```
+
+## Folder Structure Requirements
+
+- Create a main folder (e.g., "B") containing breed subfolders
+- Each subfolder should be named after a dog breed
+- Each subfolder should contain exactly one image file
+- Supported image formats: JPG, JPEG, PNG, GIF, WEBP
+- Use English breed names for best AI recognition
+
+## Technologies Used
+
+- **Next.js 15** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **OpenAI API** - AI color detection
+- **Sharp** - Image processing
+
+## API Endpoints
+
+- `POST /api/chatgpt` - Get dog breed colors from ChatGPT
+- `POST /api/generate-image` - Generate color variants using OpenAI GPT-Image-1
+
+## Development
 
 ```bash
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linting
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## License
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
