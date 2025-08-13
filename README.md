@@ -18,11 +18,17 @@ A Next.js application that generates color variants of dog breed images using AI
    npm install
    ```
 
-2. **Create environment file:**
-   Create a `.env.local` file in the root directory and add your OpenAI API key:
-   ```
+2. **Setup OpenAI API Key (Optional):**
+   
+   **Option A: Environment Variable (Recommended)**
+   Create a `.env.local` file in the root directory:
+   ```bash
+   # .env.local
    OPENAI_API_KEY=your_openai_api_key_here
    ```
+   
+   **Option B: Web Interface**
+   You can also enter your API key directly in the web application. The app will auto-load from environment if available, but you can override it anytime.
 
 3. **Run the development server:**
    ```bash

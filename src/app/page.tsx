@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 // Extend HTMLInputElement to include webkitdirectory
@@ -35,6 +35,7 @@ export default function Home() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [results, setResults] = useState<ProcessResult[]>([]);
     const [apiKey, setApiKey] = useState("");
+    const [isLoadingConfig, setIsLoadingConfig] = useState(true);
     const [generatingImages, setGeneratingImages] = useState<{
         [key: string]: boolean;
     }>({});
@@ -59,6 +60,54 @@ export default function Home() {
     const [animalType, setAnimalType] = useState<string>("Dog");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const referenceImageInputRef = useRef<HTMLInputElement>(null);
+
+    // Load API key from environment on component mount
+    useEffect(() => {
+        const loadConfig = async () => {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.hasEnvKey && config.apiKey) {
+                        setApiKey(config.apiKey);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+            } finally {
+                setIsLoadingConfig(false);
+            }
+        };
+
+        loadConfig();
+    }, []);
+
+    // Save API key to environment
+    const saveApiKeyToEnv = async () => {
+        if (!apiKey.trim()) {
+            alert('Please enter an API key first');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: apiKey.trim() })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('✅ API key saved to .env.local successfully!\nIt will be automatically loaded next time.');
+            } else {
+                const error = await response.json();
+                alert(`❌ Failed to save API key: ${error.error}\n${error.details || ''}`);
+            }
+        } catch (error) {
+            console.error('Error saving API key:', error);
+            alert('❌ Failed to save API key. Please check console for details.');
+        }
+    };
 
     const handleFolderUpload = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -408,30 +457,53 @@ export default function Home() {
                     </p>
                 </div>
 
-                {/* API Key Input */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <h2 className="text-xl font-semibold mb-4">
-                        🔑 OpenAI API Key
-                    </h2>
-                    <label
-                        htmlFor="api-key"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                        API Key
-                    </label>
-                    <input
-                        id="api-key"
-                        type="text"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Enter your OpenAI API key"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <p className="text-sm text-gray-500 mt-2">
-                        Your API key is stored locally and never sent to our
-                        servers
-                    </p>
-                </div>
+                                 {/* API Key Input */}
+                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                     <h2 className="text-xl font-semibold mb-4">
+                         🔑 OpenAI API Key
+                     </h2>
+                     <label
+                         htmlFor="api-key"
+                         className="block text-sm font-medium text-gray-700 mb-2"
+                     >
+                         API Key
+                         {isLoadingConfig && (
+                             <span className="ml-2 text-blue-600 text-xs">
+                                 🔄 Loading from environment...
+                             </span>
+                         )}
+                         {!isLoadingConfig && apiKey && (
+                             <span className="ml-2 text-green-600 text-xs">
+                                 ✅ Loaded from environment
+                             </span>
+                         )}
+                     </label>
+                     <div className="flex gap-2">
+                         <input
+                             id="api-key"
+                             type="text"
+                             value={apiKey}
+                             onChange={(e) => setApiKey(e.target.value)}
+                             placeholder={isLoadingConfig ? "Loading..." : "Enter your OpenAI API key or use environment variable"}
+                             disabled={isLoadingConfig}
+                             className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                         />
+                         <button
+                             onClick={saveApiKeyToEnv}
+                             disabled={!apiKey.trim() || isLoadingConfig}
+                             className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-3 rounded-lg font-medium whitespace-nowrap"
+                             title="Save API key to .env.local file"
+                         >
+                             💾 Save to .env
+                         </button>
+                     </div>
+                     <p className="text-sm text-gray-500 mt-2">
+                         {apiKey 
+                             ? "API key is ready. You can save it to .env.local for automatic loading next time."
+                             : "Enter your OpenAI API key or set OPENAI_API_KEY in environment variables."
+                         }
+                     </p>
+                 </div>
 
                 {/* Animal Type Input */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
