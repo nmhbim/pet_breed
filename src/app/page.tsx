@@ -35,6 +35,7 @@ export default function Home() {
   const [breedList, setBreedList] = useState<string[]>([]);
   const [isAddingBreeds, setIsAddingBreeds] = useState(false);
   const [referenceImage, setReferenceImage] = useState<File | null>(null);
+  const [animalType, setAnimalType] = useState<string>('Dog');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const referenceImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,7 +99,7 @@ export default function Home() {
             const colorsResponse = await fetch('/api/chatgpt', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ breedName, apiKey })
+              body: JSON.stringify({ breedName, animalType, apiKey })
             });
 
             if (!colorsResponse.ok) {
@@ -269,10 +270,10 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            🐕 Dog Color Variant Generator
+            🐾 Animal Color Variant Generator
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Upload a folder containing dog breed images and generate color variants using AI
+            Upload a list of animal breeds and generate color variants using AI
           </p>
         </div>
 
@@ -295,9 +296,28 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Animal Type Input */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">🐾 Animal Type</h2>
+          <label htmlFor="animal-type" className="block text-sm font-medium text-gray-700 mb-2">
+            Animal Type
+          </label>
+          <input
+            id="animal-type"
+            type="text"
+            value={animalType}
+            onChange={(e) => setAnimalType(e.target.value)}
+            placeholder="Enter animal type (e.g., Dog, Cat, Hamster...)"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p className="text-sm text-gray-500 mt-2">
+            Specify the type of animal for color generation (e.g., Dog, Cat, Rabbit, Hamster)
+          </p>
+        </div>
+
         {/* Upload Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">📁 Upload Dog Breed List</h2>
+          <h2 className="text-xl font-semibold mb-4">📁 Upload Animal Breed List</h2>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <label htmlFor="folder-upload" className="cursor-pointer">
               <input
@@ -319,7 +339,7 @@ export default function Home() {
               </button>
             </label>
             <p className="text-sm text-gray-500 mt-2">
-              Select a text file with dog breed names (one per line)
+              Select a text file with animal breed names (one per line)
             </p>
           </div>
         </div>
@@ -530,6 +550,7 @@ export default function Home() {
                                      body: JSON.stringify({
                                        referenceImageData: referenceBase64,
                                        breedName: result.breedName,
+                                       animalType: animalType,
                                        color: color,
                                        apiKey: apiKey,
                                        customPrompt: customPrompt
@@ -650,6 +671,7 @@ export default function Home() {
                                        body: JSON.stringify({
                                          referenceImageData: referenceBase64,
                                          breedName: result.breedName,
+                                         animalType: animalType,
                                          color: color,
                                          apiKey: apiKey,
                                          customPrompt: customPrompt
@@ -797,7 +819,7 @@ export default function Home() {
         <div className="bg-yellow-50 rounded-lg p-6 mt-8">
           <h3 className="text-lg font-semibold mb-3">🎨 Custom Prompt</h3>
           <p className="text-gray-700 mb-3">
-            Customize the prompt for image generation. Use <code className="bg-gray-200 px-1 rounded">{'{breedName}'}</code> and <code className="bg-gray-200 px-1 rounded">{'{color}'}</code> as placeholders.
+            Customize the prompt for image generation. Use <code className="bg-gray-200 px-1 rounded">{'{animalType}'}</code>, <code className="bg-gray-200 px-1 rounded">{'{breedName}'}</code> and <code className="bg-gray-200 px-1 rounded">{'{color}'}</code> as placeholders.
           </p>
           <textarea
             value={customPrompt}
@@ -808,9 +830,9 @@ export default function Home() {
           <div className="mt-2 text-sm text-gray-600">
             <strong>Examples:</strong>
                          <ul className="list-disc list-inside mt-1 space-y-1">
-               <li>Change style: &quot;Create a realistic photo of a {'{breedName}'} with {'{color}'} fur...&quot;</li>
-               <li>Add background: &quot;Create a {'{breedName}'} with {'{color}'} fur in a garden setting...&quot;</li>
-               <li>Change pose: &quot;Create a {'{breedName}'} with {'{color}'} fur running and playing...&quot;</li>
+                           <li>Change style: &quot;Create a realistic photo of a {'{animalType}'} {'{breedName}'} with {'{color}'} fur...&quot;</li>
+            <li>Add background: &quot;Create a {'{animalType}'} {'{breedName}'} with {'{color}'} fur in a garden setting...&quot;</li>
+            <li>Change pose: &quot;Create a {'{animalType}'} {'{breedName}'} with {'{color}'} fur running and playing...&quot;</li>
              </ul>
           </div>
         </div>

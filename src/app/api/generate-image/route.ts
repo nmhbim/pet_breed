@@ -3,9 +3,9 @@ import OpenAI, { toFile } from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { referenceImageData, breedName, color, apiKey, customPrompt } = await request.json();
+    const { referenceImageData, breedName, animalType, color, apiKey, customPrompt } = await request.json();
 
-    if (!referenceImageData || !breedName || !color || !apiKey) {
+    if (!referenceImageData || !breedName || !animalType || !color || !apiKey) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Use custom prompt if provided, otherwise use default
-    const defaultPrompt = `Create an image of a ${breedName} dog with ${color} fur. The new image must match the exact same artistic style, cartoon design, pose, proportions, and visual characteristics as the reference image. Only change the fur color to ${color}, keeping everything else identical including the drawing style, line work, shading, and overall appearance. The image must have a completely transparent background, no background elements at all, just the dog with the same style as the reference. Make sure the background is 100% transparent.`;
+    const defaultPrompt = `Create an image of a ${breedName} ${animalType} with ${color} fur. The new image must match the exact same artistic style, cartoon design, pose, proportions, and visual characteristics as the reference image. Only change the fur color to ${color}, keeping everything else identical including the drawing style, line work, shading, and overall appearance. The image must have a completely transparent background, no background elements at all, just the ${animalType} with the same style as the reference. Make sure the background is 100% transparent.`;
     
     const prompt = customPrompt 
-      ? customPrompt.replace(/{breedName}/g, breedName).replace(/{color}/g, color)
+      ? customPrompt.replace(/{animalType}/g, animalType).replace(/{breedName}/g, breedName).replace(/{color}/g, color)
       : defaultPrompt;
 
     // Convert base64 to Buffer and create a File using toFile

@@ -3,10 +3,14 @@ import OpenAI from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { breedName, apiKey } = await request.json();
+    const { breedName, animalType, apiKey } = await request.json();
 
     if (!breedName) {
       return NextResponse.json({ error: 'Breed name is required' }, { status: 400 });
+    }
+
+    if (!animalType) {
+      return NextResponse.json({ error: 'Animal type is required' }, { status: 400 });
     }
 
     if (!apiKey) {
@@ -17,7 +21,7 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     });
 
-    const prompt = `What are the common coat colors and patterns for ${breedName} dogs? Please provide a list of specific color names in English, separated by commas. Only return the color names, nothing else. For example: "Golden, Cream, White, Black, Brown"`;
+    const prompt = `What are the common coat colors and patterns for ${animalType} ${breedName}? Please provide a list of specific color names in English, separated by commas. Only return the color names, nothing else. For example: "Golden, Cream, White, Black, Brown"`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
